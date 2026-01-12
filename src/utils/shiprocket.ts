@@ -1,19 +1,19 @@
-const axios = require('axios');
+import axios from 'axios';
 
-const shiprocketLogin = async () => {
+const shiprocketLogin = async (): Promise<string> => {
     try {
         const response = await axios.post('https://apiv2.shiprocket.in/v1/external/auth/login', {
             email: process.env.SHIPROCKET_EMAIL,
             password: process.env.SHIPROCKET_PASSWORD,
         });
         return response.data.token;
-    } catch (error) {
+    } catch (error: any) {
         console.error('Shiprocket Login Error:', error.message);
         throw new Error('Shiprocket Authentication Failed');
     }
 };
 
-const createShiprocketOrder = async (orderData) => {
+const createShiprocketOrder = async (orderData: any): Promise<any> => {
     try {
         const token = await shiprocketLogin();
         const response = await axios.post('https://apiv2.shiprocket.in/v1/external/orders/create/adhoc', orderData, {
@@ -22,11 +22,10 @@ const createShiprocketOrder = async (orderData) => {
             }
         });
         return response.data;
-    } catch (error) {
-        // console.error('Shiprocket Create Order Error response:', error.response?.data);
+    } catch (error: any) {
         console.error('Shiprocket Create Order Error:', error.message);
         throw new Error('Failed to create order in Shiprocket');
     }
 };
 
-module.exports = { createShiprocketOrder };
+export { createShiprocketOrder };

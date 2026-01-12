@@ -1,10 +1,11 @@
-const User = require('../models/User');
-const generateToken = require('../utils/generateToken');
+import { Request, Response } from 'express';
+import User from '../models/User';
+import generateToken from '../utils/generateToken';
 
 // @desc    Auth user & get token
 // @route   POST /api/auth/login
 // @access  Public
-const authUser = async (req, res) => {
+const authUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
@@ -16,12 +17,12 @@ const authUser = async (req, res) => {
         name: user.name,
         email: user.email,
         isAdmin: user.isAdmin,
-        token: generateToken(user._id),
+        token: generateToken(user._id.toString()),
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
     }
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 };
@@ -29,7 +30,7 @@ const authUser = async (req, res) => {
 // @desc    Register a new user
 // @route   POST /api/auth/register
 // @access  Public
-const registerUser = async (req, res) => {
+const registerUser = async (req: Request, res: Response) => {
   const { name, email, password, address, phone } = req.body;
 
   try {
@@ -53,12 +54,12 @@ const registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
         isAdmin: user.isAdmin,
-        token: generateToken(user._id),
+        token: generateToken(user._id.toString()),
       });
     } else {
       res.status(400).json({ message: 'Invalid user data' });
     }
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 };
@@ -66,9 +67,9 @@ const registerUser = async (req, res) => {
 // @desc    Get user profile
 // @route   GET /api/auth/profile
 // @access  Private
-const getUserProfile = async (req, res) => {
+const getUserProfile = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById((req as any).user?._id);
 
     if (user) {
       res.json({
@@ -82,7 +83,7 @@ const getUserProfile = async (req, res) => {
     } else {
       res.status(404).json({ message: 'User not found' });
     }
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 };
@@ -90,11 +91,11 @@ const getUserProfile = async (req, res) => {
 // @desc    Get all users
 // @route   GET /api/users
 // @access  Private/Admin
-const getUsers = async (req, res) => {
+const getUsers = async (req: Request, res: Response) => {
   try {
     const users = await User.find({});
     res.json(users);
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 };
@@ -102,7 +103,7 @@ const getUsers = async (req, res) => {
 // @desc    Delete user
 // @route   DELETE /api/users/:id
 // @access  Private/Admin
-const deleteUser = async (req, res) => {
+const deleteUser = async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.params.id);
 
@@ -112,7 +113,7 @@ const deleteUser = async (req, res) => {
     } else {
       res.status(404).json({ message: 'User not found' });
     }
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 };
@@ -120,7 +121,7 @@ const deleteUser = async (req, res) => {
 // @desc    Get user by ID
 // @route   GET /api/users/:id
 // @access  Private/Admin
-const getUserById = async (req, res) => {
+const getUserById = async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
 
@@ -129,25 +130,24 @@ const getUserById = async (req, res) => {
     } else {
       res.status(404).json({ message: 'User not found' });
     }
-  } catch (error) {
-      res.status(500).json({ message: error.message });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
   }
 };
 
 // @desc    Update user
 // @route   PUT /api/users/:id
 // @access  Private/Admin
-const updateUser = async (req, res) => {
+const updateUser = async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.params.id);
 
     if (user) {
       user.name = req.body.name || user.name;
       user.email = req.body.email || user.email;
-      // user.isAdmin = req.body.isAdmin || user.isAdmin; // Only if you want to allow changing roles
 
       if (req.body.isAdmin !== undefined) {
-          user.isAdmin = req.body.isAdmin;
+        user.isAdmin = req.body.isAdmin;
       }
 
       const updatedUser = await user.save();
@@ -161,9 +161,9 @@ const updateUser = async (req, res) => {
     } else {
       res.status(404).json({ message: 'User not found' });
     }
-  } catch (error) {
-      res.status(500).json({ message: error.message });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
   }
 };
 
-module.exports = { authUser, registerUser, getUserProfile, getUsers, deleteUser, getUserById, updateUser };
+export { authUser, registerUser, getUserProfile, getUsers, deleteUser, getUserById, updateUser };
